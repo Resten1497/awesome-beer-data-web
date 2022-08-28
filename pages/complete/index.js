@@ -17,6 +17,7 @@ import { useRouter } from "next/router";
 export default function Register() {
   const router = useRouter();
   var data = router.query;
+  console.log(data);
   if (router.isReady && data) {
     return <></>;
   }
