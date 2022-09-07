@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   FormControl,
   FormErrorMessage,
@@ -23,7 +23,7 @@ import RegisterPage from "../components/modal/";
 export default function Home() {
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const ref = useRef();
   const { register, handleSubmit, watch } = useForm();
   const [store, setStore] = useState({
     sidoNm: "",
@@ -82,23 +82,29 @@ export default function Home() {
               placeholder="가게명"
               {...register("name", { required: true })}
             />
+            <Input
+              name="address"
+              ref={ref}
+              defaultValue=""
+              placeholder="도로명 주소"
+              {...register("address", { required: true })}
+            />
             <Flex flexDirection={"row"}>
               <Input
                 name="naverUrl"
                 placeholder="네이버지도 url"
                 {...register("naverUrl", { required: true })}
               />
-              <Button marginLeft={2}>
-                <Link href="https://map.naver.com/" target={"_blank"}>
-                  네이버 지도
-                </Link>
+              <Button
+                marginLeft={2}
+                onClick={() => {
+                  console.log(ref.current.val);
+                }}
+              >
+                네이버 지도
               </Button>
             </Flex>
-            <Input
-              name="address"
-              placeholder="도로명 주소"
-              {...register("address", { required: true })}
-            />
+
             <Select
               placeholder="가게타입"
               name="beerType"

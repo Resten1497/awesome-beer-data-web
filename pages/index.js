@@ -22,7 +22,9 @@ import { useRouter } from "next/router";
 export default function readContainer() {
   const router = useRouter();
   const { isLoading, error, data } = useQuery(["beerData"], async () => {
-    return await axios("https://awesome-beer-sever.onrender.com/");
+    //return await axios("https://awesome-beer-sever.onrender.com/");
+    //return await axios.get("http://localhost:3001/dbTest");
+    return await axios.get("api/getAllStore");
   });
   return (
     <Box
@@ -98,32 +100,38 @@ export default function readContainer() {
                   <Th>y</Th>
                 </Tr>
               </Thead>
-              <Tbody>{setTableRows(data.data)}</Tbody>
+              <Tbody>
+                {data.data.map((item, index) => {
+                  return (
+                    <Tr
+                      key={index}
+                      onClick={() => {
+                        //alert(item._id);
+                        router.push({
+                          pathname: `/store/${item._id}`,
+                        });
+                      }}
+                    >
+                      <Td>{index + 1}</Td>
+                      <Td>{item.sidoNm}</Td>
+                      <Td>{item.name}</Td>
+                      <Td>{item.address}</Td>
+                      <Td>{item.beerType}</Td>
+                      <Td>{item.desc}</Td>
+                      <Td>
+                        <Link href={item.naverUrl}>{item.naverUrl}</Link>
+                      </Td>
+                      <Td>{item.homepage}</Td>
+                      <Td>{item.x}</Td>
+                      <Td>{item.y}</Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
             </Table>
           </TableContainer>
         )}
       </Box>
     </Box>
   );
-}
-function setTableRows(data) {
-  console.log(data);
-  return data.map((item, index) => {
-    return (
-      <Tr key={index}>
-        <Td>{index}</Td>
-        <Td>{item.sidoNm}</Td>
-        <Td>{item.name}</Td>
-        <Td>{item.address}</Td>
-        <Td>{item.beerType}</Td>
-        <Td>{item.desc}</Td>
-        <Td>
-          <Link href={item.naverUrl}>{item.naverUrl}</Link>
-        </Td>
-        <Td>{item.homepage}</Td>
-        <Td>{item.x}</Td>
-        <Td>{item.y}</Td>
-      </Tr>
-    );
-  });
 }

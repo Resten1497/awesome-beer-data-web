@@ -17,20 +17,29 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import { useQuery } from "@tanstack/react-query";
 function RegisterPage({ isOpen, onClose, storeData }) {
   const router = useRouter();
 
   const [storeResult, setStoreResult] = useState(null);
-  useEffect(() => {
-    setStoreResult(null);
-    if (storeData.address != "") {
-      console.log("aa");
-      axios.get("/api/getGeocoding").then((res) => {
-        console.log(res.data);
-        setStoreResult(res.data);
-      });
+
+  const { isLoading, error, data, isSuccess } = useQuery(
+    ["storeGeocoding", storeData],
+    async () => {
+      if (storeData.address != "") {
+        return await axios.get("/api/getGeocoding");
+      }
     }
-  }, [storeData]);
+  );
+  // useEffect(() => {
+  //   setStoreResult(null);
+  //   if (storeData.address != "") {
+  //     axios.get("/api/getGeocoding").then((res) => {
+  //       console.log(res.data);
+  //       setStoreResult(res.data);
+  //     });
+  //   }
+  // }, [storeData]);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size={"5xl"}>
       <ModalOverlay />
@@ -46,8 +55,8 @@ function RegisterPage({ isOpen, onClose, storeData }) {
             있습니다.
           </Text>
           <SimpleGrid columns={[2]} spacing="50px" marginTop={5}>
-            {storeResult != null
-              ? storeResult.map((item, index) => {
+            {isSuccess
+              ? data.data.map((item, index) => {
                   return (
                     <Box
                       key={index}
