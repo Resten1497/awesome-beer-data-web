@@ -7,7 +7,7 @@ export default async (req, res) => {
 
   let { id } = req.query;
 
-  db.collection("beerTest")
+  db.collection("beerStore")
     .findOne({ _id: ObjectId(id) })
     .then((data) => {
       res.send(data);

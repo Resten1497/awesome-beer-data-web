@@ -14,18 +14,23 @@ import {
   Button,
   Link,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
+import { useReactTable } from "@tanstack/react-table";
 
 export default function readContainer() {
   const router = useRouter();
-  const { isLoading, error, data } = useQuery(["beerData"], async () => {
-    //return await axios("https://awesome-beer-sever.onrender.com/");
-    //return await axios.get("http://localhost:3001/dbTest");
-    return await axios.get("api/getAllStore");
-  });
+  const { isLoading, error, data, isSuccess } = useQuery(
+    ["beerData"],
+    async () => {
+      //return await axios("https://awesome-beer-sever.onrender.com/");
+      //return await axios.get("http://localhost:3001/dbTest");
+      return await axios.get("api/getAllStore");
+    }
+  );
   return (
     <Box
       display={"flex"}
@@ -44,10 +49,20 @@ export default function readContainer() {
         justifyContent={"space-between"}
         width={"100%"}
       >
-        <Box flexDirection={"column"}>
-          <Heading textAlign={"left"}>🍻</Heading>
-          <Heading textAlign={"left"}>Awesome-beer</Heading>
-        </Box>
+        <Flex flexDirection={"row"}>
+          <Box flexDirection={"column"}>
+            <Heading textAlign={"left"}>🍻</Heading>
+            <Heading textAlign={"left"}>Awesome-beer</Heading>
+          </Box>
+          <Flex alignItems={"flex-end"} height={"10vh"} ml={5}>
+            {isSuccess ? (
+              <Center fontSize={15}>
+                데이터 총 개수 : {data.data.length}{" "}
+              </Center>
+            ) : null}
+          </Flex>
+        </Flex>
+
         <Box height={"11vh"} display={"flex"} alignItems="center">
           <Button
             display={"flex"}
@@ -62,14 +77,14 @@ export default function readContainer() {
           >
             등록하기
           </Button>
-          <Button
+          {/* <Button
             display={"flex"}
             bg={"blue.400"}
             marginLeft={5}
             color={"white"}
           >
             파일다운
-          </Button>
+          </Button> */}
         </Box>
       </Box>
       <Box
@@ -135,3 +150,8 @@ export default function readContainer() {
     </Box>
   );
 }
+
+const TableComponent = ({ columns, data }) => {
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable({ columns, data });
+};

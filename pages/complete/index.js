@@ -15,11 +15,5 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 export default function Register() {
-  const router = useRouter();
-  var data = router.query;
-  // console.log(data);
-  if (router.isReady && data) {
-    axios.post("http://localhost:3001/dbUpdateTest", data);
-    return <></>;
-  }
+  return <p>성공</p>;
 }

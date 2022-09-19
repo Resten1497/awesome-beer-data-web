@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   FormControl,
   FormErrorMessage,
@@ -20,49 +20,52 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import DeleteModal from "./DeleteModal.js";
+import GeocodingModal from "../../components/modal/";
 
 export default function Store() {
   const router = useRouter();
   const storeId = router.query.id;
+  let ref = useRef("");
   console.log(storeId);
-  const { register, handleSubmit, watch } = useForm();
+  const { register, handleSubmit, watch, getValues, setValue } = useForm();
+  const deleteModalDisclosure = useDisclosure();
+  const GeocodingModalDisclosure = useDisclosure();
+
   const { isLoading, error, data, isSuccess } = useQuery(
     ["store", storeId],
     async () => {
       if (storeId !== undefined) {
         console.log("fetching", storeId);
         return await axios.get("/api/getStore", { params: { id: storeId } });
-        // return await axios.get("http://localhost:3001/dbFindTest", {
-        //   params: {
-        //     id: storeId,
-        //   },
-        // });
       }
     }
   );
   const updateMutateHandler = useMutation((store) => {
-    //return axios.post("/api/updateStore", { _id: storeId, ...store });
-    return axios.post("http://localhost:3001/dbUpdateTest", {
+    return axios.post("/api/updateStore", {
       _id: storeId,
       result: { ...store },
     });
   });
 
-  const [store, setStore] = useState({
-    sidoNm: "",
-    name: "",
-    naverUrl: "",
-    address: "",
-    beerType: "",
-    desc: "",
-    homepage: "",
-    x: "",
-    y: "",
+  const deleteMutateHandler = useMutation(() => {
+    return axios.post("/api/deleteStore", {
+      _id: storeId,
+    });
   });
 
+  const getModalValue = (geoData) => {
+    setValue("x", geoData.x);
+    setValue("y", geoData.y);
+    GeocodingModalDisclosure.onClose();
+  };
   if (isLoading) {
     return <Spinner />;
-  } else if (isSuccess && updateMutateHandler.isSuccess === false) {
+  } else if (
+    isSuccess &&
+    updateMutateHandler.isSuccess === false &&
+    deleteMutateHandler.isSuccess === false
+  ) {
     return (
       <Flex
         alignItems={"center"}
@@ -179,12 +182,46 @@ export default function Store() {
               >
                 <Input m={2} {...register("x")} value={data.data.x} readOnly />
                 <Input m={2} {...register("y")} value={data.data.y} readOnly />
-                <Button m={2} w={"500px"} type="button">
+                <Button
+                  m={2}
+                  w={"500px"}
+                  type="button"
+                  onClick={() => {
+                    ref.current = getValues("address");
+                    console.log(ref);
+                    GeocodingModalDisclosure.onOpen();
+                  }}
+                >
                   좌표 변경
                 </Button>
               </Box>
-
-              <Button type="submit">등록</Button>
+              <Flex justifyContent={"space-evenly"}>
+                <Button w={"500px"} m={2} type="submit">
+                  수정
+                </Button>
+                <Button
+                  w={"500px"}
+                  m={2}
+                  type="button"
+                  colorScheme="red"
+                  onClick={deleteModalDisclosure.onOpen}
+                >
+                  삭제
+                </Button>
+                <DeleteModal
+                  isOpen={deleteModalDisclosure.isOpen}
+                  onClose={deleteModalDisclosure.onClose}
+                  deleteEvent={() => {
+                    deleteMutateHandler.mutate(storeId);
+                  }}
+                />
+                <GeocodingModal
+                  isOpen={GeocodingModalDisclosure.isOpen}
+                  onClose={GeocodingModalDisclosure.onClose}
+                  storeAddress={ref.current}
+                  ModalValue={getModalValue}
+                ></GeocodingModal>
+              </Flex>
             </Stack>
           </form>
         </Flex>
@@ -193,5 +230,14 @@ export default function Store() {
   } else if (updateMutateHandler.isSuccess) {
     alert("수정이 완료되었습니다.");
     router.push("/");
+  } else if (deleteMutateHandler.isSuccess) {
+    alert("삭제가 완료되었습니다.");
+    router.push("/");
   }
 }
+
+// const ModalComponent = ({ isOpen, onClose }) => {
+//   return (
+
+//   );
+// };

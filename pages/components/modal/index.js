@@ -15,31 +15,27 @@ import {
   ModalFooter,
   Center,
 } from "@chakra-ui/react";
+import { Map } from "immutable";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
-function RegisterPage({ isOpen, onClose, storeData }) {
+function GeocodingModal({ isOpen, onClose, storeAddress, ModalValue }) {
   const router = useRouter();
 
   const [storeResult, setStoreResult] = useState(null);
 
   const { isLoading, error, data, isSuccess } = useQuery(
-    ["storeGeocoding", storeData],
+    ["storeGeocoding", storeAddress],
     async () => {
-      if (storeData.address != "") {
-        return await axios.get("/api/getGeocoding");
+      console.log(storeAddress);
+      if (storeAddress != "" && storeAddress != undefined) {
+        return await axios.get("/api/getGeocoding", {
+          params: { address: storeAddress },
+        });
       }
     }
   );
-  // useEffect(() => {
-  //   setStoreResult(null);
-  //   if (storeData.address != "") {
-  //     axios.get("/api/getGeocoding").then((res) => {
-  //       console.log(res.data);
-  //       setStoreResult(res.data);
-  //     });
-  //   }
-  // }, [storeData]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size={"5xl"}>
       <ModalOverlay />
@@ -48,15 +44,14 @@ function RegisterPage({ isOpen, onClose, storeData }) {
         <ModalHeader>위치 선택</ModalHeader>
         <ModalBody>
           <Text>
-            가게의 주소를 선택해주세요. 찾는 주소가 없다면, 다시 입력해주세요
-          </Text>
-          <Text>
+            가게의 주소를 선택해주세요. 찾는 주소가 없다면, 다시 입력해주세요.
+            <br />
             동, 호 같은 상세 주소를 제외하면 더 정확한 결과를 도출할 수
             있습니다.
           </Text>
           <SimpleGrid columns={[2]} spacing="50px" marginTop={5}>
             {isSuccess
-              ? data.data.map((item, index) => {
+              ? data.data.documents.map((item, index) => {
                   return (
                     <Box
                       key={index}
@@ -70,10 +65,15 @@ function RegisterPage({ isOpen, onClose, storeData }) {
                       height="80px"
                       onClick={() => {
                         console.log(item.y, item.x);
-                        router.push({
-                          query: { ...storeData, x: item.y, y: item.x },
-                          pathname: "/complete",
+                        ModalValue({
+                          x: item.y,
+                          y: item.x,
                         });
+                        // InsertHandler.mutate({
+                        //   ...storeData,
+                        //   x: item.y,
+                        //   y: item.x,
+                        // });
                       }}
                     >
                       <Text fontSize={"2xl"}>{item.address_name}</Text>
@@ -82,6 +82,9 @@ function RegisterPage({ isOpen, onClose, storeData }) {
                 })
               : null}
           </SimpleGrid>
+          {isSuccess && data.data.documents.length === 0 ? (
+            <Center h={60}>검색 결과가 없습니다.</Center>
+          ) : null}
         </ModalBody>
       </ModalContent>
 
@@ -89,4 +92,4 @@ function RegisterPage({ isOpen, onClose, storeData }) {
     </Modal>
   );
 }
-export default RegisterPage;
+export default GeocodingModal;
