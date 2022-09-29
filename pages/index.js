@@ -17,7 +17,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useReactTable } from "@tanstack/react-table";
 
@@ -31,6 +31,7 @@ export default function readContainer() {
       return await axios.get("api/getAllStore");
     }
   );
+
   return (
     <Box
       display={"flex"}
@@ -56,9 +57,7 @@ export default function readContainer() {
           </Box>
           <Flex alignItems={"flex-end"} height={"10vh"} ml={5}>
             {isSuccess ? (
-              <Center fontSize={15}>
-                데이터 총 개수 : {data.data.length}{" "}
-              </Center>
+              <Center fontSize={15}>데이터 총 개수 : {data.data.length}</Center>
             ) : null}
           </Flex>
         </Flex>
@@ -77,14 +76,17 @@ export default function readContainer() {
           >
             등록하기
           </Button>
-          {/* <Button
+          <Button
             display={"flex"}
             bg={"blue.400"}
             marginLeft={5}
             color={"white"}
+            onClick={async () => {
+              router.push({ pathname: "/api/downloadFile" });
+            }}
           >
             파일다운
-          </Button> */}
+          </Button>
         </Box>
       </Box>
       <Box
