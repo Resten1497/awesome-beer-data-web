@@ -26,8 +26,6 @@ export default function readContainer() {
   const { isLoading, error, data, isSuccess } = useQuery(
     ["beerData"],
     async () => {
-      //return await axios("https://awesome-beer-sever.onrender.com/");
-      //return await axios.get("http://localhost:3001/dbTest");
       return await axios.get("api/getAllStore");
     }
   );
@@ -82,10 +80,27 @@ export default function readContainer() {
             marginLeft={5}
             color={"white"}
             onClick={async () => {
-              router.push({ pathname: "/api/downloadFile" });
+              router.push({
+                pathname: "/api/downloadFile",
+                query: { type: "json" },
+              });
             }}
           >
-            파일다운
+            JSON 파일다운
+          </Button>
+          <Button
+            display={"flex"}
+            bg={"blue.400"}
+            marginLeft={5}
+            color={"white"}
+            onClick={async () => {
+              router.push({
+                pathname: "/api/downloadFile",
+                query: { type: "csv" },
+              });
+            }}
+          >
+            CSV 파일다운
           </Button>
         </Box>
       </Box>
