@@ -12,7 +12,7 @@ export default async (req, res) => {
     "beerType",
     "desc",
     "naverUrl",
-    "homepageUrl",
+    "homepage",
     "x",
     "y",
   ];
